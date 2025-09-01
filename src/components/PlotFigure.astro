@@ -1,0 +1,18 @@
+---
+import * as Plot from "@observablehq/plot";
+import { JSDOM } from "jsdom";
+
+const { options } = Astro.props;
+
+const jsdom = new JSDOM("");
+const plot = Plot.plot({
+  ...options,
+  document: jsdom.window.document
+});
+
+plot.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+const plotHtml = plot.outerHTML;
+---
+
+<div set:html={plotHtml} />
