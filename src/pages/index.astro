@@ -1,26 +1,86 @@
 ---
-import PlotFigure from "../components/PlotFigure.astro";
-import * as Plot from "@observablehq/plot";
-import penguins from "../data/penguins.json";
-
-// Exemple simple : scatter plot
-const scatterOptions = {
-  grid: true,
-  width: 600,
-  height: 400,
-  marks: [
-    Plot.dot(penguins, {
-      x: "culmen_length_mm",
-      y: "culmen_depth_mm",
-      stroke: "species"
-    })
-  ]
-};
+const cards = [
+  {
+    href: "/penguins",
+    title: "🐧 Pingouins",
+    desc: "Explorer le dataset palmerpenguins : bec, aile, masse…",
+    accent: "#2563eb"
+  },
+  {
+    href: "/cars",
+    title: "🚗 Voitures",
+    desc: "Poids vs consommation, distributions et comparaisons.",
+    accent: "#16a34a"
+  },
+  {
+    href: "/weather",
+    title: "🌤️ Météo",
+    desc: "donnée de la météo",
+    accent: "#f97316"
+  }
+];
 ---
 
 <html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>TP1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root { --bg:#0b0f19; --card:#0f172a; --muted:#94a3b8; --text:#e2e8f0; }
+      *{box-sizing:border-box}
+      body{
+        margin:0; font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Ubuntu;
+        background:linear-gradient(120deg,#0b0f19 0%,#0b1222 100%);
+        color:var(--text); padding:40px 24px;
+      }
+      header { max-width: 1100px; margin: 0 auto 28px; }
+      h1{font-size:clamp(28px,3vw,44px); margin:0 0 8px; letter-spacing:.2px}
+      p.lead{color:var(--muted); margin:0}
+      .grid{
+        max-width:1100px; margin:28px auto 0;
+        display:grid; gap:18px;
+        grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      }
+      .card{
+        position:relative; border-radius:18px; background:var(--card);
+        padding:22px; overflow:hidden; border:1px solid rgba(148,163,184,.12);
+        box-shadow:0 10px 30px rgba(0,0,0,.25);
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        text-decoration:none; color:inherit; min-height:160px;
+      }
+      .card:hover{ transform: translateY(-3px); box-shadow:0 16px 40px rgba(0,0,0,.35); border-color: rgba(148,163,184,.25); }
+      .card h2{margin:0 0 6px; font-size:20px}
+      .card p{margin:0; color:var(--muted)}
+      .accent{
+        position:absolute; inset:auto auto 0 0; height:4px; width:100%;
+        background: var(--accent, #2563eb);
+      }
+      .pill{
+        display:inline-block; font-size:12px; color:#0b0f19; background:#e2e8f0;
+        padding:3px 8px; border-radius:999px; margin-bottom:10px; font-weight:600;
+      }
+      footer { max-width:1100px; margin:28px auto 0; color:var(--muted); font-size:14px }
+      a.footer{ color:#a3bffa }
+    </style>
+  </head>
   <body>
-    <h1>Penguins Scatter Plot</h1>
-    <PlotFigure options={scatterOptions} />
+    <header>
+      <h1>TP1</h1>
+      <p class="lead">Clique sur une carte pour ouvrir la page avec tous les diagrammes de la catégorie.</p>
+    </header>
+
+    <section class="grid">
+      {cards.map(c => (
+        <a class="card" href={c.href} style={`--accent:${c.accent}`}>
+          <span class="pill">Explorer</span>
+          <h2>{c.title}</h2>
+          <p>{c.desc}</p>
+          <div class="accent"></div>
+        </a>
+      ))}
+    </section>
+
+
   </body>
 </html>

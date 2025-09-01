@@ -1,0 +1,90 @@
+---
+import PlotFigure from "../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+import penguins from "../data/penguins.json";
+
+const scatter = {
+  grid: true,
+  width: 760,
+  height: 420,
+  marks: [
+    Plot.dot(penguins, {
+      x: "culmen_length_mm",
+      y: "culmen_depth_mm",
+      stroke: "species",
+      title: d => `${d.species} — ${d.island}`
+    })
+  ],
+  inset: 10
+};
+
+const histBody = {
+  width: 760, height: 320,
+  marks: [
+    Plot.rectY(penguins, Plot.binX({y:"count"}, {x:"body_mass_g", fill:"species"})),
+    Plot.ruleY([0])
+  ],
+  inset: 10
+};
+
+const barMeanBySpecies = {
+  width: 760, height: 320,
+  marks: [
+    Plot.barY(penguins, Plot.groupX({y:"mean"}, {x:"species", y:"body_mass_g"})),
+    Plot.text(penguins, Plot.groupX({text:"mean"}, {x:"species", y:"body_mass_g", dy:-6, format: ".0f"}))
+  ],
+  y: {label: "Poids moyen (g)"}
+};
+
+const boxFlipper = {
+  width: 760, height: 320,
+  marks: [Plot.boxY(penguins, {x:"species", y:"flipper_length_mm"})],
+  y: {label: "Longueur d’aile (mm)"}
+};
+---
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Pingouins · Diagrammes</title>
+    <style>
+      body{font-family:ui-sans-serif,system-ui; margin:0; background:#0b0f19; color:#e2e8f0}
+      .wrap{max-width:1000px;margin:24px auto;padding:0 16px}
+      a.back{color:#93c5fd;text-decoration:none}
+      h1{margin:8px 0 18px}
+      .card{background:#0f172a; border:1px solid rgba(148,163,184,.12); border-radius:16px; padding:18px; margin:14px 0; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+      h2{margin:0 0 6px; font-size:18px; color:#93c5fd}
+      p.desc{margin:0 0 10px; color:#94a3b8}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="/">← Retour</a>
+      <h1>🐧 Pingouins — tous les diagrammes</h1>
+
+      <div class="card">
+        <h2>Scatter · Longueur vs profondeur du bec</h2>
+        <p class="desc">Coloré par espèce, info-bulle avec île.</p>
+        <PlotFigure options={scatter} />
+      </div>
+
+      <div class="card">
+        <h2>Histogramme · Distribution du poids</h2>
+        <p class="desc">Bin par grammes, empilé par espèce.</p>
+        <PlotFigure options={histBody} />
+      </div>
+
+      <div class="card">
+        <h2>Barres · Poids moyen par espèce</h2>
+        <p class="desc">Agrégation mean + labels.</p>
+        <PlotFigure options={barMeanBySpecies} />
+      </div>
+
+      <div class="card">
+        <h2>Box plot · Longueur d’aile</h2>
+        <p class="desc">Distribution par espèce.</p>
+        <PlotFigure options={boxFlipper} />
+      </div>
+    </div>
+  </body>
+</html>
