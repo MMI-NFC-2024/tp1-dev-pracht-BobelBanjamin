@@ -1,81 +1,43 @@
 ---
 import PlotFigure from "../components/PlotFigure.astro";
 import * as Plot from "@observablehq/plot";
-import cars from "../data/cars.json"; // ton fichier JSON (celui que tu as collé)
+import cars from "../data/cars.json";
 
-// 1) Nettoyage minimal (on enlève les valeurs nulles pour les plots concernés)
-const carsForScatter = cars.filter(d => d["economy (mpg)"] != null && d["weight (lb)"] != null);
-const carsForHist    = cars.filter(d => d["weight (lb)"] != null);
-const carsForMeanCyl = cars.filter(d => d["economy (mpg)"] != null && d.cylinders != null);
+const has = (d, k) => d[k] != null && d[k] !== "";
+const carsScatter = cars.filter(d => has(d, "economy (mpg)") && has(d, "weight (lb)"));
+const carsHist    = cars.filter(d => has(d, "weight (lb)"));
+const carsMean    = cars.filter(d => has(d, "economy (mpg)") && has(d, "cylinders"));
 
-// 2) Graphiques
 const scatter = {
-  grid: true,
-  width: 900,
-  height: 480,
-  inset: 10,
-  marks: [
-    Plot.dot(carsForScatter, {
-      x: "weight (lb)",
-      y: "economy (mpg)",
-      title: d => `${d.name} (${d.year})`,
-      r: 3
-    })
-  ],
-  x: { label: "Poids (lb)" },
-  y: { label: "Économie (mpg)" }
+  grid: true, inset: 10, width: 900, height: 480,
+  marks: [Plot.dot(carsScatter, { x:"weight (lb)", y:"economy (mpg)", r:3, title:d=>`${d.name} — ${d.year}` })],
+  x: { label: "Poids (lb)" }, y: { label: "Économie (mpg)" }
 };
 
 const histWeight = {
-  width: 900,
-  height: 320,
-  inset: 10,
-  marks: [
-    // histogramme simple du poids
-    Plot.rectY(
-      carsForHist,
-      Plot.binX({ y: "count" }, { x: "weight (lb)" })
-    ),
-    Plot.ruleY([0])
-  ],
-  x: { label: "Poids (lb)" },
-  y: { label: "Nombre de voitures" }
+  inset: 10, width: 900, height: 320,
+  marks: [Plot.rectY(carsHist, Plot.binX({ y:"count" }, { x:"weight (lb)" })), Plot.ruleY([0])],
+  x: { label:"Poids (lb)" }, y: { label:"Nombre de voitures" }
 };
 
 const meanMpgByCyl = {
-  width: 900,
-  height: 340,
-  inset: 10,
+  inset: 10, width: 900, height: 340,
   marks: [
-    // moyenne du mpg par nombre de cylindres
-    Plot.barY(
-      carsForMeanCyl,
-      Plot.groupX({ y: "mean" }, { x: "cylinders", y: "economy (mpg)" })
-    ),
-    // labels sur les barres
-    Plot.text(
-      carsForMeanCyl,
-      Plot.groupX({ text: "mean" }, { x: "cylinders", y: "economy (mpg)", dy: -6, format: ".1f" })
-    )
+    Plot.barY(carsMean, Plot.groupX({ y:"mean" }, { x:"cylinders", y:"economy (mpg)" })),
+    Plot.text(carsMean, Plot.groupX({ text:"mean" }, { x:"cylinders", y:"economy (mpg)", dy:-6, format:".1f" }))
   ],
-  x: { label: "Cylindres" },
-  y: { label: "MPG moyen" }
+  x: { label:"Cylindres" }, y: { label:"MPG moyen" }
 };
 ---
-
 <html lang="fr">
   <head>
-    <meta charset="utf-8" />
-    <title>Voitures · Diagrammes</title>
+    <meta charset="utf-8" /><title>Voitures · Diagrammes</title>
     <style>
-      body{font-family:ui-sans-serif,system-ui; margin:0; background:#0b0f19; color:#e2e8f0}
+      body{font-family:ui-sans-serif,system-ui;margin:0;background:#0b0f19;color:#e2e8f0}
       .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
       a.back{color:#93c5fd;text-decoration:none}
-      h1{margin:8px 0 18px}
-      .card{background:#0f172a; border:1px solid rgba(148,163,184,.12); border-radius:16px; padding:18px; margin:14px 0; box-shadow:0 10px 30px rgba(0,0,0,.25)}
-      h2{margin:0 0 6px; font-size:18px; color:#86efac}
-      p.desc{margin:0 0 10px; color:#94a3b8}
-      .note{color:#9ca3af; font-size:14px; margin-top:6px}
+      .card{background:#0f172a;border:1px solid rgba(148,163,184,.12);border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+      h1{margin:8px 0 18px} h2{margin:0 0 6px; font-size:18px; color:#86efac} p{color:#94a3b8}
     </style>
   </head>
   <body>
@@ -83,24 +45,9 @@ const meanMpgByCyl = {
       <a class="back" href="/">← Retour</a>
       <h1>🚗 Voitures — Diagrammes</h1>
 
-      <div class="card">
-        <h2>Scatter · Poids vs économie</h2>
-        <p class="desc">Chaque point = un modèle ; survolez pour le nom (+ année).</p>
-        <PlotFigure options={scatter} />
-        <p class="note">Champs utilisés : <code>"weight (lb)"</code> et <code>"economy (mpg)"</code>.</p>
-      </div>
-
-      <div class="card">
-        <h2>Histogramme · Distribution du poids</h2>
-        <p class="desc">Répartition du poids des véhicules.</p>
-        <PlotFigure options={histWeight} />
-      </div>
-
-      <div class="card">
-        <h2>Barres · MPG moyen par nombre de cylindres</h2>
-        <p class="desc">Agrégation de la consommation moyenne (mpg) par catégorie de cylindres.</p>
-        <PlotFigure options={meanMpgByCyl} />
-      </div>
+      <div class="card"><h2>Scatter · Poids vs économie</h2><PlotFigure options={scatter} /></div>
+      <div class="card"><h2>Histogramme · Poids</h2><PlotFigure options={histWeight} /></div>
+      <div class="card"><h2>Barres · MPG moyen par cylindres</h2><PlotFigure options={meanMpgByCyl} /></div>
     </div>
   </body>
 </html>

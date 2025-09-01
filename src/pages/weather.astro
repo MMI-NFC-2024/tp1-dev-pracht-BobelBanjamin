@@ -1,69 +1,53 @@
 ---
 import PlotFigure from "../components/PlotFigure.astro";
 import * as Plot from "@observablehq/plot";
-import rawWeather from "../data/weather.json"; // ton JSON
+import rawWeather from "../data/weather.json";
 
-// Convertir la date (string) en objet Date pour l'axe temporel
 const weather = rawWeather.map(d => ({ ...d, date: new Date(d.date) }));
 
-// 1) Températures : bande min→max + lignes
 const tempsRange = {
   width: 900, height: 360, inset: 10,
   marks: [
-    Plot.areaY(weather, { x: "date", y1: "temp_min", y2: "temp_max", opacity: 0.35 }),
-    Plot.lineY(weather, { x: "date", y: "temp_max" }),
-    Plot.lineY(weather, { x: "date", y: "temp_min" })
+    Plot.areaY(weather, { x:"date", y1:"temp_min", y2:"temp_max", opacity:0.35 }),
+    Plot.lineY(weather, { x:"date", y:"temp_max" }),
+    Plot.lineY(weather, { x:"date", y:"temp_min" })
   ],
-  x: { label: "Date" },
-  y: { label: "Température (°C)" }
+  x: { label:"Date" }, y: { label:"Température (°C)" }
 };
 
-// 2) Précipitations quotidiennes
 const precipDaily = {
   width: 900, height: 320, inset: 10,
-  marks: [
-    Plot.barY(weather, { x: "date", y: "precipitation" }),
-    Plot.ruleY([0])
-  ],
-  x: { label: "Date" },
-  y: { label: "Précipitations (mm)" }
+  marks: [Plot.barY(weather, { x:"date", y:"precipitation" }), Plot.ruleY([0])],
+  x: { label:"Date" }, y: { label:"Précipitations (mm)" }
 };
 
-// 3) Répartition par type de météo
 const countByWeather = {
   width: 900, height: 320, inset: 10,
   marks: [
-    Plot.barY(weather, Plot.groupX({ y: "count" }, { x: "weather" })),
-    Plot.text(weather, Plot.groupX({ text: "count" }, { x: "weather", dy: -6 }))
+    Plot.barY(weather, Plot.groupX({ y:"count" }, { x:"weather" })),
+    Plot.text(weather, Plot.groupX({ text:"count" }, { x:"weather", dy:-6 }))
   ],
-  x: { label: "Type de météo" },
-  y: { label: "Nombre de jours" }
+  x: { label:"Type de météo" }, y: { label:"Nombre de jours" }
 };
 
-// 4) Vent au fil du temps
 const windLine = {
   width: 900, height: 320, inset: 10,
   marks: [
-    Plot.lineY(weather, { x: "date", y: "wind" }),
-    Plot.dot(weather, { x: "date", y: "wind", title: d => `${d.wind} m/s` })
+    Plot.lineY(weather, { x:"date", y:"wind" }),
+    Plot.dot(weather, { x:"date", y:"wind", title:d=>`${d.wind} m/s` })
   ],
-  x: { label: "Date" },
-  y: { label: "Vent (m/s)" }
+  x: { label:"Date" }, y: { label:"Vent (m/s)" }
 };
 ---
-
 <html lang="fr">
   <head>
-    <meta charset="utf-8" />
-    <title>Weather · Diagrammes</title>
+    <meta charset="utf-8" /><title>Weather · Diagrammes</title>
     <style>
       body{font-family:ui-sans-serif,system-ui;margin:0;background:#0b0f19;color:#e2e8f0}
       .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
       a.back{color:#93c5fd;text-decoration:none}
-      h1{margin:8px 0 18px}
       .card{background:#0f172a;border:1px solid rgba(148,163,184,.12);border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-      h2{margin:0 0 6px;font-size:18px;color:#fde68a}
-      p.desc{margin:0 0 10px;color:#94a3b8}
+      h1{margin:8px 0 18px} h2{margin:0 0 6px; font-size:18px; color:#fde68a} p{color:#94a3b8}
     </style>
   </head>
   <body>
@@ -71,29 +55,10 @@ const windLine = {
       <a class="back" href="/">← Retour</a>
       <h1>🌤️ Weather — Diagrammes météo</h1>
 
-      <div class="card">
-        <h2>Températures · min → max</h2>
-        <p class="desc">Zone entre température mini et maxi, plus les courbes.</p>
-        <PlotFigure options={tempsRange} />
-      </div>
-
-      <div class="card">
-        <h2>Précipitations quotidiennes</h2>
-        <p class="desc">Barres de pluie par jour.</p>
-        <PlotFigure options={precipDaily} />
-      </div>
-
-      <div class="card">
-        <h2>Répartition des types de météo</h2>
-        <p class="desc">Nombre de jours par catégorie (rain, sun, snow, drizzle…)</p>
-        <PlotFigure options={countByWeather} />
-      </div>
-
-      <div class="card">
-        <h2>Vent (m/s) sur la période</h2>
-        <p class="desc">Courbe du vent quotidien, points avec infobulles.</p>
-        <PlotFigure options={windLine} />
-      </div>
+      <div class="card"><h2>Températures · min → max</h2><PlotFigure options={tempsRange} /></div>
+      <div class="card"><h2>Précipitations quotidiennes</h2><PlotFigure options={precipDaily} /></div>
+      <div class="card"><h2>Répartition des types de météo</h2><PlotFigure options={countByWeather} /></div>
+      <div class="card"><h2>Vent (m/s) sur la période</h2><PlotFigure options={windLine} /></div>
     </div>
   </body>
 </html>
